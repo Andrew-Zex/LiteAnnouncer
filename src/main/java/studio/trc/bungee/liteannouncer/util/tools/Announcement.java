@@ -184,78 +184,11 @@ public class Announcement
     }
     
     public void broadcast(AnnouncerThread asyncThread) {
-        ProxyServer proxy = ProxyServer.getInstance();
         try {
             if (!asyncThread.isRunning) return;
             Thread.sleep((long) (delay * 1000));
             if (!asyncThread.isRunning) return;
-            Map<String, BaseComponent> baseComponents = new HashMap();
-            for (ProxiedPlayer player : proxy.getPlayers()) {
-                if (!whitelist(player) || !(permission != null ? player.hasPermission(permission) : true)) continue;
-                baseComponents.clear();
-                for (JsonComponent jsonComponent : PluginControl.getJsonComponents()) {
-                    BaseComponent bc = new TextComponent(MessageUtil.toLocallyPlaceholders(jsonComponent.getComponent().toPlainText(), player));
-                    bc.setClickEvent(jsonComponent.getClickEvent());
-                    bc.setHoverEvent(jsonComponent.getHoverEvent());
-                    BaseComponent[] hover = bc.getHoverEvent().getValue();
-                    for (int i = 0;i < hover.length;i++) {
-                        hover[i] = new TextComponent(MessageUtil.toLocallyPlaceholders(hover[i].toPlainText(), player));
-                    }
-                    baseComponents.put(jsonComponent.getPlaceholder(), bc);
-                }
-                if (permission != null ? player.hasPermission(permission) : true) {
-                    for (String message : messages) {
-                        MessageUtil.sendJsonMessage(player, MessageUtil.toLocallyPlaceholders(message, player), baseComponents);
-                    }
-                }
-            }
-            if (!titlesOfBroadcast.isEmpty() && !proxy.getPlayers().isEmpty()) {
-                Thread thread = new Thread(() -> {
-                    for (TitleOfBroadcast title : titlesOfBroadcast) {
-                        for (ProxiedPlayer player : proxy.getPlayers()) {
-                            if (!whitelist(player) || !(permission != null ? player.hasPermission(permission) : true)) continue;
-                            proxy.createTitle()
-                                    .fadeIn((int) (title.getFadein() * 20))
-                                    .stay((int) (title.getStay() * 20))
-                                    .fadeOut((int) (title.getFadeout() * 20))
-                                    .title(new TextComponent(MessageUtil.toLocallyPlaceholders(title.getTitle(), player)))
-                                    .subTitle(new TextComponent(MessageUtil.toLocallyPlaceholders(title.getSubTitle(), player)))
-                                    .send(player);
-                        }
-                        try {
-                            Thread.sleep((long) (title.getDelay() * 1000));
-                        } catch (InterruptedException ex) {
-                            ex.printStackTrace();
-                        }
-                    }
-                }, "LiteAnnouncer-TitleThread");
-                thread.start();
-            }
-            if (!actionBarsOfBroadcast.isEmpty() && !proxy.getPlayers().isEmpty()) {
-                Thread thread = new Thread(() -> {
-                    for (ActionBarOfBroadcast actionbar : actionBarsOfBroadcast) {
-                        for (ProxiedPlayer player : proxy.getPlayers()) {
-                            if (!whitelist(player) || !(permission != null ? player.hasPermission(permission) : true)) continue;
-                            player.sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(MessageUtil.toLocallyPlaceholders(actionbar.getText(), player)));
-                        }
-                        try {
-                            Thread.sleep((long) (actionbar.getDelay() * 1000));
-                        } catch (InterruptedException ex) {
-                            ex.printStackTrace();
-                        }
-                    }
-                }, "LiteAnnouncer-ActionBarThread");
-                thread.start();
-            }
-            if (PluginControl.enabledConsoleBroadcast()) {
-                baseComponents.clear();
-                for (JsonComponent jsonComponent : PluginControl.getJsonComponents()) {
-                    baseComponents.put(jsonComponent.getPlaceholder(), jsonComponent.getComponent());
-                }
-                for (String message : messages) {
-                    MessageUtil.sendJsonMessage(proxy.getConsole(), message, baseComponents);
-                }
-            }
+            broadcast();
         } catch (InterruptedException ex) {
             Logger.getLogger(Announcement.class.getName()).log(Level.SEVERE, null, ex);
         }
