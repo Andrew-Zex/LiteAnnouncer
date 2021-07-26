@@ -172,68 +172,7 @@ public class Announcement
             if (!asyncThread.isRunning) return;
             Thread.sleep((long) (delay * 1000));
             if (!asyncThread.isRunning) return;
-            Map<String, BaseComponent> baseComponents = new HashMap();
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                if (!(permission != null ? player.hasPermission(permission) : true)) continue;
-                baseComponents.clear();
-                for (JsonComponent jsonComponent : PluginControl.getJsonComponents()) {
-                    BaseComponent bc = new TextComponent(MessageUtil.toPlaceholderAPIResult(jsonComponent.getComponent().toPlainText(), player));
-                    bc.setClickEvent(jsonComponent.getClickEvent());
-                    bc.setHoverEvent(jsonComponent.getHoverEvent());
-                    BaseComponent[] hover = bc.getHoverEvent().getValue();
-                    for (int i = 0;i < hover.length;i++) {
-                        hover[i] = new TextComponent(MessageUtil.toPlaceholderAPIResult(hover[i].toPlainText(), player));
-                    }
-                    baseComponents.put(jsonComponent.getPlaceholder(), bc);
-                }
-                if (permission != null ? player.hasPermission(permission) : true) {
-                    for (String message : messages) {
-                        MessageUtil.sendJsonMessage(player, message, baseComponents);
-                    }
-                }
-            }
-            if (!titlesOfBroadcast.isEmpty() && !Bukkit.getOnlinePlayers().isEmpty()) {
-                Thread thread = new Thread(() -> {
-                    for (TitleOfBroadcast title : titlesOfBroadcast) {
-                        for (Player player : Bukkit.getOnlinePlayers()) {
-                            if (!(permission != null ? player.hasPermission(permission) : true)) continue;
-                            TitleUtil.sendTitle(player, title);
-                        }
-                        try {
-                            Thread.sleep((long) (title.getDelay() * 1000));
-                        } catch (InterruptedException ex) {
-                            ex.printStackTrace();
-                        }
-                    }
-                });
-                thread.start();
-            }
-            if (!actionBarsOfBroadcast.isEmpty() && !Bukkit.getOnlinePlayers().isEmpty()) {
-                Thread thread = new Thread(() -> {
-                    for (ActionBarOfBroadcast actionbar : actionBarsOfBroadcast) {
-                        for (Player player : Bukkit.getOnlinePlayers()) {
-                            if (!(permission != null ? player.hasPermission(permission) : true)) continue;
-                            ActionBarUtil.sendActionBar(player, actionbar);
-                        }
-                        try {
-                            Thread.sleep((long) (actionbar.getDelay() * 1000));
-                        } catch (InterruptedException ex) {
-                            ex.printStackTrace();
-                        }
-                    }
-                }, "LiteAnnouncer-ActionBarThread");
-                thread.start();
-            }
-            if (PluginControl.enabledConsoleBroadcast()) {
-                baseComponents.clear();
-                CommandSender console = Bukkit.getConsoleSender();
-                for (JsonComponent jsonComponent : PluginControl.getJsonComponents()) {
-                    baseComponents.put(jsonComponent.getPlaceholder(), jsonComponent.getComponent());
-                }
-                for (String message : messages) {
-                    MessageUtil.sendJsonMessage(console, message, baseComponents);
-                }
-            }
+            broadcast();
         } catch (InterruptedException ex) {
             Logger.getLogger(Announcement.class.getName()).log(Level.SEVERE, null, ex);
         }
