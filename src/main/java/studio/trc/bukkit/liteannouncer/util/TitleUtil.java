@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 import org.bukkit.entity.Player;
 
-import studio.trc.bukkit.liteannouncer.util.tools.TitleOfBroadcast;
+import studio.trc.bukkit.liteannouncer.util.tools.Title;
 
 public class TitleUtil
 {
@@ -92,7 +92,7 @@ public class TitleUtil
         }
     }
     
-    public static void sendTitle(Player player, TitleOfBroadcast titleOfBroadcast) {
+    public static void sendTitle(Player player, Title titleOfBroadcast) {
         sendTitle(player, titleOfBroadcast.getTitle(), titleOfBroadcast.getSubTitle(), titleOfBroadcast.getFadein(), titleOfBroadcast.getStay(), titleOfBroadcast.getFadeout());
     }
     
@@ -116,18 +116,6 @@ public class TitleUtil
             if (sendPacket != null) {
                 sendPacket.invoke(connection, packetObject);
             }
-//            if (PluginControl.getNMSVersion().startsWith("v1_17") || PluginControl.getNMSVersion().startsWith("v1_18")) {
-//                List<String> fieldNames = new ArrayList();
-//                Arrays.asList(entityPlayer.getClass().getFields()).stream().forEach(field -> {fieldNames.add(field.getName());});
-//                if (fieldNames.contains("networkManager")) {
-//                    connection = entityPlayer.getClass().getField("networkManager").get(entityPlayer);
-//                } else {
-//                    connection = entityPlayer.getClass().getField("connection").get(entityPlayer);
-//                }
-//            } else {
-//                connection = entityPlayer.getClass().getField("playerConnection").get(entityPlayer);
-//            }
-//            connection.getClass().getMethod("sendPacket", packet).invoke(connection, packetObject);
         } catch (SecurityException | NoSuchMethodException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             ex.printStackTrace();
         }
